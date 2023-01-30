@@ -31,44 +31,53 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: box.length,
                   itemBuilder: (context, index) {
                     return SizedBox(
-                      height: 80,
-                      child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  data[index].title.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                      height: 100,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 20, left: 20),
+                        child: Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      data[index].title.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                        onTap: () {
+                                          _editDialouge(
+                                              data[index],
+                                              data[index].title.toString(),
+                                              data[index].description.toString());
+                                        },
+                                        child: const Icon(Icons.edit)),
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
+                                    InkWell(
+                                        onTap: () {
+                                          DeleteData(data[index]);
+                                        },
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ))
+                                  ],
                                 ),
-                                const Spacer(),
-                                InkWell(
-                                    onTap: () {
-                                      _editDialouge(
-                                          data[index],
-                                          data[index].title.toString(),
-                                          data[index].description.toString());
-                                    },
-                                    child: const Icon(Icons.edit)),
-                                const SizedBox(
-                                  width: 15,
-                                ),
-                                InkWell(
-                                    onTap: () {
-                                      DeleteData(data[index]);
-                                    },
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ))
-                              ],
-                            ),
-                            Text(data[index].description.toString())
-                          ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(data[index].description.toString()),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -133,6 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     box.add(data);
                     // data.save();
                     print(box);
+                    TitleController.clear();
+                    DescriptionController.clear();
+
                     Navigator.pop(context);
                   },
                   child: const Text("Add")),
@@ -186,6 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     notesModel.description =
                         DescriptionController.text.toString();
                     notesModel.save();
+                    TitleController.clear();
+                    DescriptionController.clear();
+
                     Navigator.pop(context);
                   },
                   child: const Text("Edit")),
