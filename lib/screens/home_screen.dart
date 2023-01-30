@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hiveimplementation/models/notes_models.dart';
 import '../boxes/boxes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -32,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   shrinkWrap: true,
                   itemCount: box.length,
                   itemBuilder: (context, index) {
-                    return Container(
+                    return SizedBox(
                       height: 80,
                       child: Card(
                         child: Column(
