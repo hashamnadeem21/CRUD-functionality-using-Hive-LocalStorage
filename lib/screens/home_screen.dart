@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hiveimplementation/models/notes_models.dart';
@@ -29,34 +28,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 reverse: true,
                 shrinkWrap: true,
                 itemCount: box.length,
-                itemBuilder: (context, index) {
-                  final data = box.getAt(index);
+                itemBuilder: (context, i) {
+                  final data = box.getAt(i);
                   return Padding(
                     padding: const EdgeInsets.only(right: 10.0, left: 10),
                     child: Card(
                       elevation: 3,
-                      child: ListTile(
-                        onTap: () {
-                          Get.to(() => ViewNoteScreen(
-                                title: data!.title,
-                                description: data.description,
-                                imageUrl: data.imageUrl,
-                              ));
-                        },
-                        leading: const Text("image"),
-                        title: Text(
-                          data!.title.toString(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic),
-                        ),
-                        trailing: IconButton(
-                          onPressed: () {
-                            box.deleteAt(index);
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          onTap: () {
+                            Get.to(() => ViewNoteScreen(
+                                  title: data!.title,
+                                  description: data.description,
+                                  imageUrl: data.imageUrl,
+                                ));
                           },
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
+                          leading: Image.file(File(data!.imageUrl.toString(),),),
+                          title: Text(
+                            data.title.toString(),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic),
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              box.deleteAt(i);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
                           ),
                         ),
                       ),
