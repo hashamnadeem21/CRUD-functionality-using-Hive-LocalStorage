@@ -1,7 +1,10 @@
-import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hiveimplementation/models/notes_models.dart';
-import '../boxes/boxes.dart';
+import 'package:hiveimplementation/screens/add_notes_screen.dart';
+import 'package:hiveimplementation/screens/view_notes_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,200 +15,61 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TitleController = TextEditingController();
-  final DescriptionController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Hive Home Screen"),
-        ),
-        body: ValueListenableBuilder<Box<NotesModel>>(
-            valueListenable: Boxes.getData().listenable(),
-            builder: (context, box, _) {
-              var data = box.values.toList().cast<NotesModel>();
-              return ListView.builder(
-                  reverse: true,
-                  shrinkWrap: true,
-                  itemCount: box.length,
-                  itemBuilder: (context, index) {
-                    return SizedBox(
-                      height: 100,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 20, left: 20),
-                        child: Card(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      data[index].title.toString(),
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const Spacer(),
-                                    InkWell(
-                                        onTap: () {
-                                          _editDialouge(
-                                              data[index],
-                                              data[index].title.toString(),
-                                              data[index].description.toString());
-                                        },
-                                        child: const Icon(Icons.edit)),
-                                    const SizedBox(
-                                      width: 15,
-                                    ),
-                                    InkWell(
-                                        onTap: () {
-                                          DeleteData(data[index]);
-                                        },
-                                        child: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ))
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(data[index].description.toString()),
-                              )
-                            ],
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("H I V E   N O T I F Y "),
+      ),
+      body: ValueListenableBuilder(
+          valueListenable: Hive.box<NotesModel>('Notes').listenable(),
+          builder: (context, Box<NotesModel> box, _) {
+            return ListView.builder(
+                reverse: true,
+                shrinkWrap: true,
+                itemCount: box.length,
+                itemBuilder: (context, index) {
+                  final data = box.getAt(index);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10.0, left: 10),
+                    child: Card(
+                      elevation: 3,
+                      child: ListTile(
+                        onTap: () {
+                          Get.to(() => ViewNoteScreen(
+                                title: data!.title,
+                                description: data.description,
+                                imageUrl: data.imageUrl,
+                              ));
+                        },
+                        leading: const Text("image"),
+                        title: Text(
+                          data!.title.toString(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            box.deleteAt(index);
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
                           ),
                         ),
                       ),
-                    );
-                  });
-            }),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            _showMyDialog(context);
-          },
-          child: const Icon(Icons.add),
-        ));
-  }
-
-  void DeleteData(NotesModel notesModel) async {
-    await notesModel.delete();
-  }
-
-  Future<void> _showMyDialog(BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Add Notes"),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: TitleController,
-                    decoration: InputDecoration(
-                      hintText: 'Title',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextFormField(
-                    controller: DescriptionController,
-                    decoration: InputDecoration(
-                      hintText: 'Description',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel")),
-              TextButton(
-                  onPressed: () {
-                    final data = NotesModel(
-                        description: DescriptionController.text.toString(),
-                        title: TitleController.text.toString());
-
-                    final box = Boxes.getData();
-                    box.add(data);
-                    // data.save();
-                    print(box);
-                    TitleController.clear();
-                    DescriptionController.clear();
-
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Add")),
-            ],
-          );
-        });
-  }
-
-  Future<void> _editDialouge(NotesModel notesModel, String title, String description) async {
-    TitleController.text = title;
-    DescriptionController.text = description;
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Edit Notes"),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: TitleController,
-                    decoration: InputDecoration(
-                      hintText: 'Title',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextFormField(
-                    controller: DescriptionController,
-                    decoration: InputDecoration(
-                      hintText: 'Description',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel")),
-              TextButton(
-                  onPressed: () async {
-                    notesModel.title = TitleController.text.toString();
-                    notesModel.description =
-                        DescriptionController.text.toString();
-                    notesModel.save();
-                    TitleController.clear();
-                    DescriptionController.clear();
-
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Edit")),
-            ],
-          );
-        });
+                  );
+                });
+          }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.to(const AddNotes());
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }

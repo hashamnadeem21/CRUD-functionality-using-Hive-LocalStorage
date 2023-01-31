@@ -9,5 +9,8 @@ class NotesModel  extends HiveObject {
   @HiveField(1)
   String description;
 
-  NotesModel({required this.description, required this.title});
+  @HiveField(2)
+  String imageUrl;
+
+  NotesModel({required this.description, required this.title , required this.imageUrl});
 }
